@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
 	"sync"
 	"time"
 )
@@ -82,12 +83,16 @@ func (cp *ConcurrentPool) GetExecuteTime() (*time.Duration, error) {
 	return cp.execTime, nil
 }
 
-func (cp *ConcurrentPool) Execute() ([]*Result, error) {
+func (cp *ConcurrentPool) Execute() (output []*Result, err error) {
 	if cp.finish {
-		return nil, nil
+		return cp.result, nil
 	}
 	startTime := time.Now()
 	defer func() {
+		if r := recover(); r != nil {
+			err = errors.New(fmt.Sprintf("Panic, details: %s", r))
+			return
+		}
 		t := time.Now().Sub(startTime)
 		cp.execTime = &t
 	}()
