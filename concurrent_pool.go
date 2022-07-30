@@ -46,6 +46,11 @@ func (cp *ConcurrentPool) SetContext(ctx context.Context) *ConcurrentPool {
 
 func (cp *ConcurrentPool) SetGenKeyFunc(f func(data interface{}) string) *ConcurrentPool {
 	cp.genKeyFunc = f
+	if len(cp.params) != 0 {
+		for i := 0; i < len(cp.params); i++ {
+			cp.params[i].Key = cp.genKeyFunc(cp.params[i].Data)
+		}
+	}
 	return cp
 }
 

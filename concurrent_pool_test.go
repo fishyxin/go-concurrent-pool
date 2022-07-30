@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -21,6 +22,10 @@ func TestAddFunc(t *testing.T) {
 
 	cp := NewConcurrentPool(3).
 		SetParam(params).
+		SetGenKeyFunc(func(data interface{}) string {
+			param := data.(addParam)
+			return fmt.Sprintf("a(%d)+b(%d)", param.a, param.b)
+		}).
 		SetExecuteFunc(func(data interface{}) (interface{}, error) {
 			param := data.(addParam)
 			return param.a + param.b, nil
@@ -30,6 +35,6 @@ func TestAddFunc(t *testing.T) {
 	assert.Nil(t, err)
 
 	for _, r := range res {
-		t.Log(r.Data)
+		t.Log(fmt.Sprintf("key:%s, result:%d", r.Key, r.Data))
 	}
 }
